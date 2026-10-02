@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Expense Tracker</h1>
+            <p>Track your daily spending</p>
+        </header>
+
+        <main>
+            <!-- Add Expense Form -->
+            <section class="add-expense-section">
+                <h2>Add New Expense</h2>
+                <form action="#" method="POST">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Rent">Rent</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" name="description" placeholder="e.g., Lunch with friends" required>
+                    </div>
+
+                    <button type="submit" class="btn">Save Expense</button>
+                </form>
+            </section>
+
+            <!-- Display Expenses -->
+            <section class="view-expenses-section">
+                <div class="header-row">
+                    <h2>Recent Expenses</h2>
+                    <h2 class="total">Total: ₹0.00</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- This is where Java will eventually inject your data -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+<!-- Add this JavaScript right above the </body> tag -->
+    <script>
+        // 1. Load existing expenses from the browser's hidden memory (or start empty)
+        let expenses = JSON.parse(localStorage.getItem('myExpenses')) || [];
+        const form = document.querySelector('form');
+        const tableBody = document.querySelector('tbody');
+        const totalDisplay = document.querySelector('.total');
+
+        // 2. Function to draw the table and calculate the total
+        function updateUI() {
+            tableBody.innerHTML = ''; // Clear the table first
+            let totalAmount = 0;
+
+            // Loop through all saved expenses and add them to the screen
+            expenses.forEach(function(expense) {
+                totalAmount += expense.amount;
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${expense.date}</td>
+                    <td><span class="badge">${expense.category}</span></td>
+                    <td>${expense.description}</td>
+                    <td>₹${expense.amount.toFixed(2)}</td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+
+            // Update the total at the top
+            totalDisplay.textContent = 'Total: ₹' + totalAmount.toFixed(2);
+        }
+
+        // 3. Draw the table immediately when the page loads
+        updateUI();
+
+        // 4. Listen for the Save Expense button
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent page refresh
+
+            // Bundle the new data together
+            const newExpense = {
+                date: document.getElementById('date').value,
+                category: document.getElementById('category').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                description: document.getElementById('description').value
+            };
+
+            // Add it to our list and save it to the browser's memory
+            expenses.push(newExpense);
+            localStorage.setItem('myExpenses', JSON.stringify(expenses));
+
+            // Redraw the screen and clear the form
+            updateUI();
+            form.reset();
+        });
+    </script>
+</body>
+</html>
